@@ -1,6 +1,6 @@
 <# 
 .SYNOPSIS
-Install Google Chrome on Azure Virtual 
+Install Google Chrome on an image created with  Azure Image Builder 
 .DESCRIPTION
 
 #>
