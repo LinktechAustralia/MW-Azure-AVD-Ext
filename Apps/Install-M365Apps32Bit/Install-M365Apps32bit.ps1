@@ -38,8 +38,6 @@ write-host "AIB Customization: Extract the ODT Installer"
 $ODTExtract = saps "$Destination" -args "/quiet /Extract:`"$($Path)`"" -Wait -PassThru
 $SetupFullFileName = Join-path "$Path" setup.exe
 
-
-
 # This section contains the configuration xml that will be used in the install
 "$(LogDate)Processing the configuration.xml" 
 Write-Host "AIB Customization: Processing the configuration.xml"
