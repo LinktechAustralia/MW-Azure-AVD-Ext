@@ -1,30 +1,23 @@
 <# 
 .SYNOPSIS
-Install Google Chrome on an image created with  Azure Image Builder 
+Install M365 Apps for Enterprise (32 bit) on an image created with  Azure Image Builder 
 .DESCRIPTION
+The script invokes a download of the latest Office Deplyment Toolkit.
+Extracts the toolkit
+
 
 #>
 Function LogDate {"$(Get-date -fo s)" + "`t"}
 $AppName = 'M365 Apps for Enterprise 32 Bit'
-$EverGreenAppName = ''
 
 Start-Transcript $(Join-Path $env:TEMP Install-$($AppName).log)
 Write-Host 'AIB Customization: M365 Apps for Enterprise (32bit)'
 $Path = "$env:SystemDrive\Apps\$($AppName)"
-if (!(Test-Path $Path -ErrorAction SilentlyContinue))
+if (!(Test-Path $Path -ErrorAction SilentlyContinue)) #Create the folder if it does not exist
     {
         MD "$Path" -Force
     }
 
-
-<# 
-# Evergreen Needed (https://github.com/aaronparker/evergreen)
-If (!(Get-Module -Name Evergreen -ListAvailable -ErrorAction SilentlyContinue))
-    {
-        Install-Module -Name Evergreen -scope AllUsers -Force
-    }
-Import-Module Evergreen
- #>
 #Download latest ODT installer
 function Download-ODT 
     {
@@ -40,13 +33,16 @@ function Download-ODT
 Download-ODT
 
 
-"$(logdate)Extract"
+"$(logdate)Extract the ODT Installer"
+write-host "AIB Customization: Extract the ODT Installer"  
 $ODTExtract = saps "$Destination" -args "/quiet /Extract:`"$($Path)`"" -Wait -PassThru
 $SetupFullFileName = Join-path "$Path" setup.exe
 
 
 
-
+# This section contains the configuration xml that will be used in the install
+"$(LogDate)Processing the configuration.xml" 
+Write-Host "AIB Customization: Processing the configuration.xml"
 $ConfigurationXML = @'
 <Configuration >
   <Add OfficeClientEdition="32" Channel="MonthlyEnterprise" MigrateArch="TRUE">
