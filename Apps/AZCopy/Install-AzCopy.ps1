@@ -12,5 +12,4 @@ if ( -not (test-path -path $azcopyzip  )) {
 
 Expand-Archive $azcopyzip $azcopytemp  -Force -Verbose
 $azcopyexe = Get-ChildItem $azcopytemp -Include *.exe -Recurse
-saps "C:\Windows\System32\Robocopy.exe" -args "$($azcopyexe.DirectoryName) $env:windir\system32 $($azcopyexe.Name)" -NoNewWindow
-
+saps "C:\Windows\System32\Robocopy.exe" -args "$($azcopyexe.DirectoryName) $env:windir\system32 $($azcopyexe.Name)" -NoNewWindow -PassThru
