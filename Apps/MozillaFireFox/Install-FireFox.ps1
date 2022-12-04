@@ -29,17 +29,6 @@ $result = Start-Process -FilePath msiexec.exe -ArgumentList  "$ArgumentList" -No
 Write-Host 'AIB Customization Error Message: ' $error[0]
 
 
-#Removes the Desktop ShortCut
-$DesktopShtCtPath = "C:\users\Public\Desktop\google chrome.lnk"
-if (Test-Path $DesktopShtCtPath -ErrorAction SilentlyContinue) 
-    {
-        Remove-Item -Path $DesktopShtCtPath -Force -Verbose
-    }
-
-$masterPref = "C:\Program Files\Google\Chrome\Application\master_preferences"
-$masterPrefJson = Get-Content $masterPref -Raw | ConvertFrom-Json
-$masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "do_not_create_desktop_shortcut" -Value 'True'
-$masterPrefJson | ConvertTo-Json -Depth 4 | Out-File $masterPref -force
 
 
 Write-Host 'AIB Customization Exit code: ' $LASTEXITCODE
