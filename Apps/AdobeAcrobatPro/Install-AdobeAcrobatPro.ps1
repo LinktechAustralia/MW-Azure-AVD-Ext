@@ -25,7 +25,18 @@ $DownloadLink = $URIRef.Links | ? { $_.outerHTML -like '*trials*'-and $_.outerHT
 $DownloadLink = $DownloadLink.href
 $DownloadFileName = $([System.IO.Path]::GetFileName($DownloadLink.ToString()))
 $Global:Destination = Join-path "$Path" $DownloadFileName
-Invoke-WebRequest -Uri $DownloadLink -OutFile $Destination -Verbose
+Start-BitsTransfer -Source $DownloadLink -Destination $Destination
 
 Write-host "AIB Customization: Extracting $DownloadFileName"
 Expand-Archive $Destination "$Path" -Force 
+
+$InstallerPath = Join-path $path "Adobe Acrobat"
+$InstallerFullFilePath = Join-Path  $InstallerPath setup.EXE
+$ArgumentList = '/sAll /rs /msi  EULA_ACCEPT=YES LANG_LIST=en_US UPDATE_MODE=0 DISABLE_ARM_SERVICE_INSTALL=1 ADD_THUMBNAILPREVIEW=YES'
+Start-Process $InstallerFullFilePath -ArgumentList $ArgumentList -NoNewWindow -PassThru -Wait
+
+#Customisation
+New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown' -Value 1 -Name bIsSCReducedModeEnforcedEx -PropertyType DWORD -Force
+New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Value 1 -Name bUpdater -PropertyType DWORD -Force
+New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Value 0 -Name bToggleAdobeSign -PropertyType DWORD -Force
+New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cIPM' -Value 0 -Name bDontShowMsgWhenViewingDoc -PropertyType DWORD -Force
