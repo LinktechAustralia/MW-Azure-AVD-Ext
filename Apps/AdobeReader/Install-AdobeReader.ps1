@@ -17,6 +17,7 @@ $Path = "$env:SystemDrive\Apps\$($AppName)"
 # Evergreen Needed (https://github.com/aaronparker/evergreen)
 If (!(Get-Module -Name Evergreen -ListAvailable -ErrorAction SilentlyContinue))
     {
+        Install-PackageProvider -Name NuGet -force
         Install-Module -Name Evergreen -scope AllUsers -Force
     }
 Import-Module Evergreen
