@@ -39,6 +39,9 @@ if (Test-Path $DesktopShtCtPath -ErrorAction SilentlyContinue)
 $masterPref = "C:\Program Files\Google\Chrome\Application\master_preferences"
 $masterPrefJson = Get-Content $masterPref -Raw | ConvertFrom-Json
 $masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "do_not_create_desktop_shortcut" -Value 'True'
+$masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "do_not_create_any_shortcuts" -Value 'True'
+$masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "show_welcome_page" -Value 'false'
+$masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "do_not_create_taskbar_shortcut" -Value 'true'
 $masterPrefJson | ConvertTo-Json -Depth 4 | Out-File $masterPref -force
 
 
