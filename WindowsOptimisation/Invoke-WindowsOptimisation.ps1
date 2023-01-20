@@ -41,9 +41,17 @@ $FeatureAddition = @()	#Place the features that are required to be installed e.g
 $CapabilityRemoval = @("Print.Fax.Scan~~~~0.0.1.0")
 $CapabilityAddition = @()
 
+$StartMenuLayoutURI = "https://stavdauekrau.blob.core.windows.net/avdrepository/KEAU-StartMenu.xml?st=2023-01-20T03:30:03Z&si=avd_read_2028&spr=https&sv=2021-06-08&sr=b&sig=im%2BaWpQ0kECMSRQ4iFIw0C2EHZCr19gWdKHjgrvZNLY%3D"
+
+$AppAssociationsURI =  "https://stavdauekrau.blob.core.windows.net/avdrepository/avdfileassociations.xml?st=2023-01-20T04:19:18Z&si=avd_read_2028&spr=https&sv=2021-06-08&sr=b&sig=vSX%2FYD5MkJANfXtZgWe0RX7UbTcJYg70KFsy1VYtHaI%3D"
+
 <# 
 END of VARIABLE DECLARATION
 #>
+
+function LogDateTime {
+	"$(Get-date -Format s)`t"
+}
 
 #Download the VDOT Toolkit
 write-host 'AIB Customization: OS Optimizations for AVD'
@@ -117,3 +125,23 @@ foreach ($Capability in $CapabilityRemoval) {
 		}
 
 }
+
+# Desktop Shortcut customisation	
+$TeamsShortCut = "C:\programdata\Microsoft\Windows\Start Menu\Programs\Microsoft Teams.lnk"
+	if (!(Test-Path $TeamsShortCut -ErrorAction SilentlyContinue)) {
+	Copy-Item "C:\programdata\Microsoft\Windows\Start Menu\Programs\Microsoft Teams.lnk" "C:\Users\Public\Desktop" 
+	}
+
+
+
+# Start Menu 
+Write-Host "$(LogDateTime)AIB Customization: Importing Start Menu"
+$outputPath = Join-Path $LocalPath LayoutModification.xml
+Invoke-WebRequest -Uri $StartMenuLayoutURi -OutFile "$outputPath"
+Import-StartLayout -LayoutPath $OutputPath -MountPath C:\ -ErrorAction SilentlyContinue
+Copy-Item "$($installFolder)Layout.xml" "C:\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Force -ErrorAction SilentlyContinue
+
+#File Associations
+$FileAssociationsxml = Join-Path $LocalPath AppAssociations.xml
+Invoke-WebRequest -Uri $AppAssociationsURI -OutFile "$FileAssociationsxml"
+Start-Process dism -ArgumentList "/online /Import-DefaultAppAssociations:`"$FileAssociationsxml`"" -Wait -NoNewWindow
