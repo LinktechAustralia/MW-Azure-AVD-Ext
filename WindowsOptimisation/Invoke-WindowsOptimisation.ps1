@@ -118,7 +118,7 @@ foreach ($Capability in $CapabilityRemoval) {
 	if ((Get-WindowsCapability -Online -Name $Capability -ErrorAction SilentlyContinue).State -eq 'installed') {
 
 		Write-Host "AIB Customization: Removing Feature $($Capability)"
-		Remove-WindowsCapability -Online -FeatureName $Capability -Verbose
+		Remove-WindowsCapability -Online -Name $Capability -Verbose
 
 		} else {
 			Write-Host "AIB Customization: Feature $($Capability) not installed"
