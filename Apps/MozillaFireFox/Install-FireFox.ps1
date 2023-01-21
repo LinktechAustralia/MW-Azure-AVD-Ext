@@ -1,8 +1,11 @@
 <# 
 .SYNOPSIS
-Install Mozilla Firefox on an image created with  Azure Image Builder 
+Install Mozilla Firefox on an image created with Azure Image Builder 
 .DESCRIPTION
+.NOTES
+Created by Linktech Australia
 
+Source URL from https://www.mozilla.org/en-US/firefox/all/#product-desktop-release
 #>
 
 $AppName = 'Mozilla Firefox'
@@ -13,18 +16,11 @@ Start-Transcript $(Join-Path $env:TEMP Install-$($AppName).log)
 Write-Host "AIB Customization: $($AppName)"
 $Path = "$env:SystemDrive\Apps\$($AppName)"
 
-md "$Path"
+md "$Path" -Force
+# Unattended Install of Firefox
 
-#Find Winget
-$WingetExe = (dir "C:\program files\windowsapps"  -Filter winget.exe -Recurse | select -first 1).fullname
-
-#Perform Install
-saps "$($WingetExe)" -args "install --id mozilla.firefox --accept-package-agreements --scope machine --accept-source-agreements --silent" -NoNewWindow -PassThru -Wait
-
-
-Write-Host "AIB Customization $($AppName) Exit code: " $LASTEXITCODE
-if ($error[0]) {
-	Write-Host "AIB Customization Error Message: " $error[0]
-}
-#Cleanup installers
-Remove-Item "$Path" -Force -Recurse -Verbose
+$SourceURL = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
+$Installer = Join-path $Path "firefox.exe"; 
+Invoke-WebRequest $SourceURL -OutFile $Installer
+Start-Process -FilePath $Installer -Args "/s /TaskbarShortcut=false /DesktopShortcut=false /MaintenanceService=false /RegisterDefaultAgent=false" -NoNewWindow -Wait -PassThru -Verbose
+Remove-Item $Path -Force -Verbose
