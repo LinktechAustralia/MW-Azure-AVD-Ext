@@ -19,13 +19,14 @@ Expand-Archive $OutPath "$($Path)" -Force
 $APPXs = dir "$($Path)" -Filter *.appx -Recurse | ? {$_.FullName -match "x64" -or $_.FullName -match "x86"}
 foreach ($Appx in $APPXs)
 {
-  Add-AppxPackage -Path $Appx.fullname -Verbose
+	Add-AppxProvisionedPackage -PackagePath "$($Appx.fullname)" -Online -SkipLicense
+	#Add-AppxPackage -Path $Appx.fullname -Verbose
 }
 
 #Install Winget
 Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/download/v1.3.2691/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -OutFile .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 Invoke-WebRequest -Uri https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx -OutFile Microsoft.VCLibs.x64.14.00.Desktop.appx
-Add-AppxPackage Microsoft.VCLibs.x64.14.00.Desktop.appx
-Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+Add-AppxProvisionedPackage -PackagePath Microsoft.VCLibs.x64.14.00.Desktop.appx -Online -SkipLicense
+Add-AppxProvisionedPackage -PackagePath Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -Online -SkipLicense
 
 Remove-Item $Path -Force -Recurse
