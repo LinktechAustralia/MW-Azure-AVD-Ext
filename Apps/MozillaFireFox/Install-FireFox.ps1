@@ -25,5 +25,5 @@ $Installer = Join-path $Path "firefox.msi";
 Invoke-WebRequest $SourceURL -OutFile $Installer -UseBasicParsing -Verbose
 #Start-BitsTransfer $SourceURL -Destination $Installer -Verbose
 #Start-Process -FilePath $Installer -Args "/S /TaskbarShortcut=false /DesktopShortcut=false /MaintenanceService=false /RegisterDefaultAgent=false /PreventRebootRequired=true" -NoNewWindow -Wait -PassThru -Verbose
-saps msiexec.exe -args "/i `"$Installer`" /qn" -passthru -nonewwindow -wait 
+saps msiexec.exe -args "/i `"$Installer`" /qn TaskbarShortcut=false DesktopShortcut=false MaintenanceService=false RegisterDefaultAgent=false PreventRebootRequired=true" -passthru -nonewwindow -wait 
 Remove-Item $Path -Force -Verbose -recurse
