@@ -19,10 +19,11 @@ $Path = "$env:SystemDrive\Apps\$($AppName)"
 md "$Path" -Force
 # Unattended Install of Firefox
 
-#$SourceURL = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
-$SourceURL = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
-$Installer = Join-path $Path "firefox.exe"; 
+$SourceURL = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
+#$SourceURL = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+$Installer = Join-path $Path "firefox.msi"; 
 Invoke-WebRequest $SourceURL -OutFile $Installer -UseBasicParsing -Verbose
 #Start-BitsTransfer $SourceURL -Destination $Installer -Verbose
-Start-Process -FilePath $Installer -Args "/S /TaskbarShortcut=false /DesktopShortcut=false /MaintenanceService=false /RegisterDefaultAgent=false /PreventRebootRequired=true" -NoNewWindow -Wait -PassThru -Verbose
-Remove-Item $Path -Force -Verbose
+#Start-Process -FilePath $Installer -Args "/S /TaskbarShortcut=false /DesktopShortcut=false /MaintenanceService=false /RegisterDefaultAgent=false /PreventRebootRequired=true" -NoNewWindow -Wait -PassThru -Verbose
+saps msiexec.exe -args "/i `"$Installer`" /qn" -passthru -nonewwindow -wait 
+Remove-Item $Path -Force -Verbose -recurse
