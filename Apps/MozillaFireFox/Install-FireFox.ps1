@@ -21,7 +21,7 @@ md "$Path" -Force
 
 #$SourceURL = "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US"
 $SourceURL = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
-$Installer = Join-path $Path "firefox.msi"; 
+$Installer = Join-path $Path "firefox.exe"; 
 Invoke-WebRequest $SourceURL -OutFile $Installer -UseBasicParsing -Verbose
 #Start-BitsTransfer $SourceURL -Destination $Installer -Verbose
 saps "$Installer" -Args "/S /TaskbarShortcut=false /DesktopShortcut=false /MaintenanceService=false /RegisterDefaultAgent=false /PreventRebootRequired=true" -NoNewWindow -Wait -PassThru -Verbose
