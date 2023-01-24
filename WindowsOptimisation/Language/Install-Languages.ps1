@@ -8,6 +8,10 @@ $R
 
 Start-Transcript "C:\Windows\Logs\Install-LanguageOptions.log"
 
+function LogDateTime {
+	$(Get-Date -Format s) + "`t"
+	
+}
 "Language Installer: Importing Module"
 Import-Module Languagepackmanagement -Verbose
 
@@ -135,10 +139,11 @@ Remove-WindowsPackage -PackageName
  [string]$LIPContent = "$($Drive):" #>
 
 
-#Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
+Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
 
 Write-Host "$(LogDateTime)`tAdding $($DefaultLanguage) as the default"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "en-AU" /f | Out-Host
+reg.exe add "HKLM\TempUser\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v SetLanguage /t REG_SZ /d  "C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -command `"&{Set-WinUserLanguageList en-AU -Force}`"" /f | Out-Host
 reg.exe unload HKLM\TempUser | Out-Host
