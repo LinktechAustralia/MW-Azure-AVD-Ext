@@ -145,5 +145,8 @@ Set-WinSystemLocale -SystemLocale $DefaultLanguage
 Write-Host "$(LogDateTime)`tAdding $($DefaultLanguage) as the default"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "en-AU" /f | Out-Host
-reg.exe add "HKLM\TempUser\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v SetLanguage /t REG_SZ /d  "C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -command `"&{Set-WinUserLanguageList en-AU -Force}`"" /f | Out-Host
+
+$RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) {New-Item $RegPath}
+New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList en-AU -Force}`"" -Force
 reg.exe unload HKLM\TempUser | Out-Host
