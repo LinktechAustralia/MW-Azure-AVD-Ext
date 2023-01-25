@@ -28,7 +28,7 @@ $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Control Panel\International"
 if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 	New-Item $RegPath -Force
 }
-New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType REG_DWORD -Value 1 -Force
+New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType DWORD -Value 1 -Force
 
 <# 
 foreach ($ReqLang in $RequiredLanguages)
@@ -154,6 +154,7 @@ reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
 $RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
-New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose
+<# New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose 
+#>
 reg.exe unload HKLM\TempUser | Out-Host
 
