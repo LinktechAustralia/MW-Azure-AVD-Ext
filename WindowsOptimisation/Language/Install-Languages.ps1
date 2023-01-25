@@ -24,7 +24,11 @@ mkdir $($Path)
 ##Disable Language Pack Cleanup##
 Disable-ScheduledTask -TaskPath "\Microsoft\Windows\AppxDeploymentClient\" -TaskName "Pre-staged app cleanup"
 
-
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Control Panel\International"
+if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
+	New-Item $RegPath -Force
+}
+New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType REG_DWORD -Value 1 -Force
 
 <# 
 foreach ($ReqLang in $RequiredLanguages)
@@ -142,11 +146,16 @@ Remove-WindowsPackage -PackageName
 Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
 
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
+New-item -Path $RegPath -Force
+New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
+
 Write-Host "$(LogDateTime)`tAdding $($DefaultLanguage) as the default"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
-reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "en-AU" /f | Out-Host
+reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
 
 $RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) {New-Item $RegPath}
-New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList en-AU -Force}`"" -Force
+New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force ; Set-WinSystemLocale $($DefaultLanguage)}`"" -Force -Verbose
 reg.exe unload HKLM\TempUser | Out-Host
+
