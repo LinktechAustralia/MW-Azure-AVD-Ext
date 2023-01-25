@@ -85,7 +85,7 @@ $FilesLists = @{
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
 $OutFile = Join-Path $Path Language.iso
-Write-Host "Commence Download of $($OutFile)"
+Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
 
 Start-BitsTransfer -Source $URI -Destination $OutFile -Verbose
 #Invoke-WebRequest -Uri -OutFile $OutFile
@@ -99,7 +99,7 @@ Add-WindowsPackage -Online -PackagePath $LIPContent\x64\langpacks\Microsoft-Wind
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_amd64fre_FOD-PACKAGES_OEM_PT1_amd64fre_MULTI.iso"
 $OutFile = Join-Path $Path FODDISK1.iso
-Write-Host "Commence Download of $($OutFile)"
+Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
 Start-BitsTransfer -Source $URI -Destination $OutFile
 $Drive = (Mount-DiskImage -ImagePath "$($OutFile)" -PassThru -StorageType ISO | Get-Volume).driveletter
 
@@ -155,7 +155,7 @@ reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
 
 $RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) {New-Item $RegPath}
+if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath }
 New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force ; Set-WinSystemLocale $($DefaultLanguage)}`"" -Force -Verbose
 reg.exe unload HKLM\TempUser | Out-Host
 
