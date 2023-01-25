@@ -152,9 +152,8 @@ New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string 
 Write-Host "$(LogDateTime)`tAdding $($DefaultLanguage) as the default"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
-
 $RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath }
-New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force ; Set-WinSystemLocale $($DefaultLanguage)}`"" -Force -Verbose
+if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
+New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose
 reg.exe unload HKLM\TempUser | Out-Host
 
