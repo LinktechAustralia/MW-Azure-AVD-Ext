@@ -129,7 +129,6 @@ Set-WinUserLanguageList $LanguageList -force
 $LanguageList = Get-WinUserLanguageList
 $LanguageList.Remove("en-US")
 Set-WinUserLanguageList $LanguageList -force
-Remove-WindowsPackage -PackageName 
 
 
 <#  
