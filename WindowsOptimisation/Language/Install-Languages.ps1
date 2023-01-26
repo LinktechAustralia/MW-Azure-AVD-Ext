@@ -163,5 +163,6 @@ $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-Winuserlanguagelist $($DefaultLanguage) -force }" /f
 reg.exe add "$($RegPath)" /v SetLang02 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinHomeLocation -GeoId $WinhomeLocation }" /f
 reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinSystemLocale -SystemLocale $DefaultLanguage}" /f
+reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-Culture $DefaultLanguage}" /f
 reg.exe unload HKLM\TempUser | Out-Host
 
