@@ -152,15 +152,6 @@ $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
 
-Write-Host "$(LogDateTime)`tSetting the default user profile"
-reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
-reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
-$RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-#if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
-#Set-ItemProperty -Path $RegPath -Name ''
-<# New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose 
-#>
-
 $SCRIPT = "Set-Winuserlanguagelist $($DefaultLanguage) -force ;
 Set-WinHomeLocation -GeoId $($WinhomeLocation) 
 Set-WinSystemLocale -SystemLocale $($DefaultLanguage)
@@ -170,14 +161,12 @@ $OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
 "Generating Script " | Write-Host
 $SCRIPT | Out-File $OutScriptFile -Force
 
+Write-Host "$(LogDateTime)`tSetting the default user profile"
+reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
+reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
+$RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+
 reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
 
-
-<# 
-reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-Winuserlanguagelist $($DefaultLanguage) -force ;start-sleep 30}" /f
-reg.exe add "$($RegPath)" /v SetLang02 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-WinHomeLocation -GeoId $($WinhomeLocation) ;start-sleep 30 }" /f
-reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ;start-sleep 30}" /f
-reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command `"& {Set-Culture $($DefaultLanguage) ;start-sleep 30}`"" /f
- #>
 reg.exe unload HKLM\TempUser | Out-Host
 
