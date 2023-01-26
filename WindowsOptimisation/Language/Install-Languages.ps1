@@ -153,7 +153,7 @@ Write-Host "$(LogDateTime)`tSetting the default user profile"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
 $RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
+#if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
 #Set-ItemProperty -Path $RegPath -Name ''
 <# New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose 
 #>
