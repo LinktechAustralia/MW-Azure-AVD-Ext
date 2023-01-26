@@ -160,9 +160,22 @@ $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 #Set-ItemProperty -Path $RegPath -Name ''
 <# New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose 
 #>
-reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-Winuserlanguagelist $($DefaultLanguage) -force }" /f
-reg.exe add "$($RegPath)" /v SetLang02 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinHomeLocation -GeoId $WinhomeLocation }" /f
-reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinSystemLocale -SystemLocale $DefaultLanguage}" /f
-reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-Culture $DefaultLanguage}" /f
+
+$SCRIPT = "Set-Winuserlanguagelist $($DefaultLanguage) -force ;
+Set-WinHomeLocation -GeoId $($WinhomeLocation) 
+Set-WinSystemLocale -SystemLocale $($DefaultLanguage)
+Set-Culture $($DefaultLanguage)"
+$OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
+$SCRIPT | Out-File $OutScriptFile -Force
+
+reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle Normal -File \"C:\Program Files\Set-Langs.ps1\"' /f
+
+
+<# 
+reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-Winuserlanguagelist $($DefaultLanguage) -force ;start-sleep 30}" /f
+reg.exe add "$($RegPath)" /v SetLang02 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-WinHomeLocation -GeoId $($WinhomeLocation) ;start-sleep 30 }" /f
+reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command {Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ;start-sleep 30}" /f
+reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -WindowStyle Normal -command `"& {Set-Culture $($DefaultLanguage) ;start-sleep 30}`"" /f
+ #>
 reg.exe unload HKLM\TempUser | Out-Host
 
