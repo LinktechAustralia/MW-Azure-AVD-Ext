@@ -168,7 +168,7 @@ Set-Culture $($DefaultLanguage)"
 $OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
 $SCRIPT | Out-File $OutScriptFile -Force
 
-reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle Normal -File \"C:\Program Files\Set-Langs.ps1\"' /f
+reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
 
 
 <# 
