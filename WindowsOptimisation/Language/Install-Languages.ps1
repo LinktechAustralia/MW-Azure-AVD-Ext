@@ -17,6 +17,7 @@ Import-Module Languagepackmanagement -Verbose
 
 $RequiredLanguages = @('en-AU')
 $DefaultLanguage = 'en-AU'
+$WinhomeLocation = 12
 
 $Path = Join-Path "C:\Apps" "LanguagePacks"
 mkdir $($Path)
@@ -144,6 +145,8 @@ Set-WinUserLanguageList $LanguageList -force
 
 Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
+Set-WinHomeLocation -GeoId $WinhomeLocation -Verbose
+Set-WinUserLanguageList en-AU -Force
 
 $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
@@ -152,10 +155,13 @@ New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string 
 Write-Host "$(LogDateTime)`tSetting the default user profile"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
-$RegPath = "HKLM:\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+$RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 #if (!(Get-item $RegPath -ErrorAction SilentlyContinue)) { New-Item $RegPath -Verbose}
 #Set-ItemProperty -Path $RegPath -Name ''
 <# New-ItemProperty -Path $RegPath -Name SetLang -PropertyType string -Value "powershell.exe -windowstyle hidden -command `"{Set-WinUserLanguageList $($DefaultLanguage) -Force}`"" -Force -Verbose 
 #>
+reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-Winuserlanguagelist $($DefaultLanguage) -force }" /f
+reg.exe add "$($RegPath)" /v SetLang02 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinHomeLocation -GeoId $WinhomeLocation }" /f
+reg.exe add "$($RegPath)" /v SetLang03 /t reg_SZ /d "powershell.exe -windowstyle hidden -command {Set-WinSystemLocale -SystemLocale $DefaultLanguage}" /f
 reg.exe unload HKLM\TempUser | Out-Host
 
