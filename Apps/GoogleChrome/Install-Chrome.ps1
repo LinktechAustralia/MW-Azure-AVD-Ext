@@ -13,16 +13,15 @@ Write-Host 'AIB Customization: Google_Chrome'
 $Path = "$env:SystemDrive\Apps\$($AppName)"
 
 # Evergreen Needed (https://github.com/aaronparker/evergreen)
-If (!(Get-Module -Name Evergreen -ListAvailable -ErrorAction SilentlyContinue))
-    {
-        if (!(Get-Module -Name NuGet)){Install-PackageProvider -Name NuGet -Force -Scope AllUsers}
-		Install-Module -Name Evergreen -scope AllUsers -Force
-    }
+If (!(Get-Module -Name Evergreen -ListAvailable -ErrorAction SilentlyContinue)) {
+	if (!(Get-Module -Name NuGet)) { Install-PackageProvider -Name NuGet -Force -Scope AllUsers }
+	Install-Module -Name Evergreen -scope AllUsers -Force
+}
 Import-Module Evergreen
 
 
 #Download latest installer
-$App = Get-EvergreenApp -Name $EverGreenAppName | Where-Object {  $_.Architecture -eq "x64" -and $_.Channel -eq "stable" } | Select-Object -First 1
+$App = Get-EvergreenApp -Name $EverGreenAppName | Where-Object { $_.Architecture -eq "x64" -and $_.Channel -eq "stable" } | Select-Object -First 1
 Write-Host 'AIB Customization: Found version' $App.version
 
 $OutFile = Save-EvergreenApp -InputObject $App -CustomPath "$Path" -WarningAction "SilentlyContinue"
@@ -33,15 +32,14 @@ Write-Host 'AIB Customization Error Message: ' $error[0]
 
 #Removes the Desktop ShortCut
 $DesktopShtCtPath = "C:\users\Public\Desktop\google chrome.lnk"
-if (Test-Path $DesktopShtCtPath -ErrorAction SilentlyContinue) 
-    {
-        Remove-Item -Path $DesktopShtCtPath -Force -Verbose
-    }
+if (Test-Path $DesktopShtCtPath -ErrorAction SilentlyContinue) {
+	Remove-Item -Path $DesktopShtCtPath -Force -Verbose
+}
 #Configure default settings
 
 $masterPref = "C:\Program Files\Google\Chrome\Application\initial_preferences"
-if (!(Test-Path $masterPref)) {New-Item $masterPref -ItemType File -Force}
-$masterPrefJson=@"
+if (!(Test-Path $masterPref)) { New-Item $masterPref -ItemType File -Force }
+$masterPrefJson = @"
 {
 	"sync_promo": {
 		"show_on_first_run_allowed": false
@@ -75,8 +73,8 @@ $masterPrefJson | Out-File "C:\Program Files\Google\Chrome\Application\master_pr
 
 
 Write-Host 'AIB Customization Exit code: ' $LASTEXITCODE
-if ($error[0]){
-Write-Host 'AIB Customization Error Message: ' $error[0]
+if ($error[0]) {
+	Write-Host 'AIB Customization Error Message: ' $error[0]
 }
 #Cleanup installers
 Remove-Item "$Path" -Force -Recurse -Verbose
