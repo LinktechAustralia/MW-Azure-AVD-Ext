@@ -89,7 +89,19 @@ $FilesLists = @{
 	'pt-BR' = @{
 		Name            = "pt-BR"
 		Files           = @(
-			"Microsoft-Windows-LanguageFeatures-Basic-pt-br-Package~31bf3856ad364e35~amd64~~.cab", "Microsoft-Windows-LanguageFeatures-Handwriting-pt-br-Package~31bf3856ad364e35~amd64~~.cab", "Microsoft-Windows-LanguageFeatures-OCR-pt-br-Package~31bf3856ad364e35~amd64~~.cab", "Microsoft-Windows-LanguageFeatures-Speech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", "Microsoft-Windows-LanguageFeatures-TextToSpeech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", "Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~pt-BR~.cab", "Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab"
+			"Microsoft-Windows-LanguageFeatures-Basic-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-Handwriting-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-OCR-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-Speech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-TextToSpeech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab"
 		)
 		LXP             = "LanguageExperiencePack.pt-BR.Neutral.appx"		
 		LanguagePackCab = "Microsoft-Windows-Client-Language-Pack_x64_pt-br.cab"
