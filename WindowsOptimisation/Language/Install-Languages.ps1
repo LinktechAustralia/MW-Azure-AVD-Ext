@@ -190,6 +190,9 @@ foreach ($RequiredLanguage in $RequiredLanguages) {
 			Add-WindowsPackage -Online -PackagePath "$($FODFullFileName)" -Verbose
 
 		}
+		else {
+			"Couldn't find $($FODFullFileName)"
+		}
 
 	}
 
