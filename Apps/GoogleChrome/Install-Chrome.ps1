@@ -75,7 +75,8 @@ $masterPrefJson | Out-File "C:\Program Files\Google\Chrome\Application\master_pr
 
 
 Write-Host 'AIB Customization Exit code: ' $LASTEXITCODE
+if ($error[0]){
 Write-Host 'AIB Customization Error Message: ' $error[0]
-
+}
 #Cleanup installers
 Remove-Item "$Path" -Force -Recurse -Verbose
