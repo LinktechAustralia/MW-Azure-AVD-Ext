@@ -182,6 +182,17 @@ foreach ($RequiredLanguage in $RequiredLanguages) {
 	}
 
 	# Install the FODs
+	$FODFiles = $FilesLists."$($RequiredLanguage)".Files
+	foreach ($FODFile in $FODFiles) {
+		$FODFullFileName = (dir $FODContent -Filter $($FODFile) -Recurse).fullname
+
+		if ($FODFullFileName) {
+			Add-WindowsPackage -Online -PackagePath "$($FODFullFileName)" -Verbose
+
+		}
+
+	}
+
 
 }
 #>
