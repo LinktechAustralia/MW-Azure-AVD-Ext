@@ -9,7 +9,7 @@ https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locat
 
 #>
 
-$RequiredLanguages = @('en-AU', 'pt-BR')
+$RequiredLanguages = @('en-AU')
 $DefaultLanguage = 'en-AU'
 $WinhomeLocation = 12
 
