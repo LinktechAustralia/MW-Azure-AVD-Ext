@@ -112,43 +112,27 @@ $FilesLists = @{
 #Download & Mount the Language ISOs
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
-$OutFile = Join-Path $Path Language.iso
-Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
+$OutFileLang = Join-Path $Path Language.iso
+Write-Host "$(LogDateTime)Commence Download of $($OutFileLang)"
 
-Start-BitsTransfer -Source $URI -Destination $OutFile -Verbose
-#Invoke-WebRequest -Uri -OutFile $OutFile
+Start-BitsTransfer -Source $URI -Destination $OutFileLang -Verbose
+
+
 ##Set Language Pack Content Stores##
 
-$Drive = (Mount-DiskImage -ImagePath "C:\Apps\LanguagePacks\Language.iso" -PassThru -StorageType ISO | Get-Volume).driveletter
+$Drive = (Mount-DiskImage -ImagePath "$($OutFileLang)" -PassThru -StorageType ISO | Get-Volume).driveletter
 [string]$LIPContent = "$($Drive):"
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_amd64fre_FOD-PACKAGES_OEM_PT1_amd64fre_MULTI.iso"
-$OutFile = Join-Path $Path FODDISK1.iso
-Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
-Start-BitsTransfer -Source $URI -Destination $OutFile
+$OutFileFOD = Join-Path $Path FODDISK1.iso
+Write-Host "$(LogDateTime)Commence Download of $($OutFileFOD)"
+Start-BitsTransfer -Source $URI -Destination $OutFileFOD
 
-"Mounting $($OutFile)" | Write-Host
-$Drive = (Mount-DiskImage -ImagePath "$($OutFile)" -PassThru -StorageType ISO | Get-Volume).driveletter
+"Mounting $($OutFileFOD)" | Write-Host
+$Drive = (Mount-DiskImage -ImagePath "$($OutFileFOD)" -PassThru -StorageType ISO | Get-Volume).driveletter
 [string]$FODContent = "$($Drive):"
 
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-Speech-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-LanguageFeatures-TextToSpeech-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $FODContent\Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
 
-#<# 
 foreach ($RequiredLanguage in $RequiredLanguages) {
 	"Commencing install of $($RequiredLanguage) components"
 	#Install the LXPs
@@ -243,11 +227,13 @@ $SCRIPT | Out-File $OutScriptFile -Force
 Write-Host "$(LogDateTime)`tSetting the default user profile"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
+
 $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-
 reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
-
 reg.exe unload HKLM\TempUser | Out-Host
 
 #Cleaning Folder
+Dismount-DiskImage -ImagePath $OutFileLang -Verbose
+Dismount-DiskImage -ImagePath $OutFileFOD -Verbose
+
 Remove-Item	  $Path -Force -Recurse -ErrorAction SilentlyContinue
