@@ -35,23 +35,15 @@ if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 }
 New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType DWORD -Value 1 -Force
 
-#<# 
+<# 
 foreach ($ReqLang in $RequiredLanguages)
 	{
 		"Language Installer: Checking for $($ReqLang)"
 		if (!(Get-Language -Language $ReqLang)) {
 			"Language Installer: $($ReqLang) is not installed. Installing.."
-			
-			if ($ReqLang -eq $DefaultLanguage) {
-				"Setting $($DefaultLanguage) as the default language "
-				Install-Language -Language $ReqLang -CopyToSettings -Verbose
-			}
-			Else {
-				Install-Language -Language $ReqLang  -Verbose
-			}
+			Install-Language -Language $ReqLang -CopyToSettings -Verbose
 
 		} else {
-			"Installing $($ReqLang)"
 			"Language Installer: $($ReqLang) is installed"
 		}
 	}
@@ -75,8 +67,8 @@ foreach ($InstalledLang in $InstalledLanguages){
 
 $FilesLists = @{
 	'en-AU' = @{
-		Name  = "en-AU"
-		Files = @(
+		Name            = "en-AU"
+		Files           = @(
 			"Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
@@ -86,54 +78,113 @@ $FilesLists = @{
 			"Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
-			"Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~en-gb~.ca",
-			"Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~en-gb~.ca",
-			"Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~en-gb~.ca",
+			"Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
+			"Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
+			"Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab"
 		)
+		LXP             = 'LanguageExperiencePack.en-GB.Neutral.appx'
+		LanguagePackCab = "Microsoft-Windows-Client-Language-Pack_x64_en-gb.cab"
+	}
+	'pt-BR' = @{
+		Name            = "pt-BR"
+		Files           = @(
+			"Microsoft-Windows-LanguageFeatures-Basic-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-Handwriting-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-OCR-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-Speech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-LanguageFeatures-TextToSpeech-pt-br-Package~31bf3856ad364e35~amd64~~.cab", 
+			"Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab", 
+			"Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~pt-BR~.cab",
+			"Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~pt-BR~.cab"
+		)
+		LXP             = "LanguageExperiencePack.pt-BR.Neutral.appx"		
+		LanguagePackCab = "Microsoft-Windows-Client-Language-Pack_x64_pt-br.cab"
 	}
 
 }
-<# 
+
+#Download & Mount the Language ISOs
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
-$OutFile = Join-Path $Path Language.iso
-Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
+$OutFileLang = Join-Path $Path Language.iso
+Write-Host "$(LogDateTime)Commence Download of $($OutFileLang)"
 
-Start-BitsTransfer -Source $URI -Destination $OutFile -Verbose
-#Invoke-WebRequest -Uri -OutFile $OutFile
+Start-BitsTransfer -Source $URI -Destination $OutFileLang -Verbose
+
+
 ##Set Language Pack Content Stores##
 
-$Drive = (Mount-DiskImage -ImagePath "C:\Apps\LanguagePacks\Language.iso" -PassThru -StorageType ISO | Get-Volume).driveletter
-
+$Drive = (Mount-DiskImage -ImagePath "$($OutFileLang)" -PassThru -StorageType ISO | Get-Volume).driveletter
 [string]$LIPContent = "$($Drive):"
-Add-AppProvisionedPackage -Online -PackagePath $LIPContent\LocalExperiencePack\en-gb\LanguageExperiencePack.en-GB.Neutral.appx -LicensePath $LIPContent\LocalExperiencePack\en-gb\License.xml
-Add-WindowsPackage -Online -PackagePath $LIPContent\x64\langpacks\Microsoft-Windows-Client-Language-Pack_x64_en-gb.cab
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_amd64fre_FOD-PACKAGES_OEM_PT1_amd64fre_MULTI.iso"
-$OutFile = Join-Path $Path FODDISK1.iso
-Write-Host "$(LogDateTime)Commence Download of $($OutFile)"
-Start-BitsTransfer -Source $URI -Destination $OutFile
-$Drive = (Mount-DiskImage -ImagePath "$($OutFile)" -PassThru -StorageType ISO | Get-Volume).driveletter
+$OutFileFOD = Join-Path $Path FODDISK1.iso
+Write-Host "$(LogDateTime)Commence Download of $($OutFileFOD)"
+Start-BitsTransfer -Source $URI -Destination $OutFileFOD
 
-[string]$LIPContent = "$($Drive):"
+"Mounting $($OutFileFOD)" | Write-Host
+$Drive = (Mount-DiskImage -ImagePath "$($OutFileFOD)" -PassThru -StorageType ISO | Get-Volume).driveletter
+[string]$FODContent = "$($Drive):"
 
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-Speech-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-LanguageFeatures-TextToSpeech-en-gb-Package~31bf3856ad364e35~amd64~~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-Notepad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-Printing-WFS-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-StepsRecorder-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
-Add-WindowsPackage -Online -PackagePath $LIPContent\Microsoft-Windows-WordPad-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab -Verbose
+
+foreach ($RequiredLanguage in $RequiredLanguages) {
+	"Commencing install of $($RequiredLanguage) components"
+	#Install the LXPs
+	"Installing LXPs"
+	$LXPFiles = $FilesLists."$($RequiredLanguage)".LXP
+	foreach ($LXPFile in $LXPFiles) {
+			
+		$LXPFullFileName = (dir $LIPContent -Filter $($LXPFile) -Recurse).fullname
+
+		if ($LXPFullFileName) {
+			"Found $($LXPFullFileName). Installing.."
+			Add-AppProvisionedPackage -Online -PackagePath $LXPFullFileName -LicensePath $(Join-Path $(Split-path $LXPFullFileName) License.xml)
+		} 
+		Else {
+			"Couldn't find $($LXPFile)"
+		}
+	}
+	
+	#Install the Language Pack Cab
+	$LanguagePackCabFiles = $FilesLists."$($RequiredLanguage)".LanguagePackCab
+	foreach ($LanguagePackCabFile in $LanguagePackCabFiles) {
+		$LanguagePackCabFullFileName = (dir $LIPContent -Filter $($LanguagePackCabFile) -Recurse).fullname
+
+		if ($LanguagePackCabFullFileName) {
+			Add-WindowsPackage -Online -PackagePath $LanguagePackCabFullFileName -Verbose
+		}
+		Else {
+			"Couldn't find $($LanguagePackCabFullFileName)"
+		}
+
+	}
+
+	# Install the FODs
+	$FODFiles = $FilesLists."$($RequiredLanguage)".Files
+	foreach ($FODFile in $FODFiles) {
+		$FODFullFileName = (dir $FODContent -Filter $($FODFile) -Recurse).fullname
+
+		if ($FODFullFileName) {
+			Add-WindowsPackage -Online -PackagePath "$($FODFullFileName)" -Verbose
+
+		}
+		else {
+			"Couldn't find $($FODFullFileName)"
+		}
+
+	}
+
+
+}
+#>
+
+
 $LanguageList = Get-WinUserLanguageList
 $LanguageList.Add("en-au")
 Set-WinUserLanguageList $LanguageList -force
@@ -154,7 +205,7 @@ Set-WinUserLanguageList $LanguageList -force
 
  [string]$LIPContent = "$($Drive):" #>
 
- #>
+
 Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
 Set-WinHomeLocation -GeoId $WinhomeLocation -Verbose
@@ -164,8 +215,7 @@ $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
 
-
-$SCRIPT = " $Winuserlanguagelist = Get-Winuserlanguagelist
+$SCRIPT = " `$RequiredLanguages = $($RequiredLanguages)
 Set-Winuserlanguagelist $($DefaultLanguage) -force ;
 Set-WinHomeLocation -GeoId $($WinhomeLocation) 
 Set-WinSystemLocale -SystemLocale $($DefaultLanguage)
@@ -175,14 +225,70 @@ $OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
 "Generating Script " | Write-Host
 $SCRIPT | Out-File $OutScriptFile -Force
 
+
+$RegenAU = @"
+Windows Registry Editor Version 5.00
+
+
+[HKEY_LOCAL_MACHINE\tempuser\Control Panel\International]
+"Locale"="00000C09"
+"LocaleName"="en-AU"
+"s1159"="AM"
+"s2359"="PM"
+"sCurrency"="$"
+"sDate"="/"
+"sDecimal"="."
+"sGrouping"="3;0"
+"sLanguage"="ENA"
+"sList"=","
+"sLongDate"="dddd, d MMMM yyyy"
+"sMonDecimalSep"="."
+"sMonGrouping"="3;0"
+"sMonThousandSep"=","
+"sNativeDigits"="0123456789"
+"sNegativeSign"="-"
+"sPositiveSign"=""
+"sShortDate"="d/MM/yyyy"
+"sThousand"=","
+"sTime"=":"
+"sTimeFormat"="h:mm:ss tt"
+"sShortTime"="h:mm tt"
+"sYearMonth"="MMMM yyyy"
+"iCalendarType"="1"
+"iCountry"="61"
+"iCurrDigits"="2"
+"iCurrency"="0"
+"iDate"="1"
+"iDigits"="2"
+"NumShape"="1"
+"iFirstDayOfWeek"="0"
+"iFirstWeekOfYear"="0"
+"iLZero"="1"
+"iMeasure"="0"
+"iNegCurr"="1"
+"iNegNumber"="1"
+"iPaperSize"="9"
+"iTime"="0"
+"iTimePrefix"="0"
+"iTLZero"="0"
+
+[HKEY_LOCAL_MACHINE\tempuser\Control Panel\International\Geo]
+"Nation"="12"
+"Name"="AU"
+"@
+
+
+
 Write-Host "$(LogDateTime)`tSetting the default user profile"
 reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($DefaultLanguage)" /f | Out-Host
+
 $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-
 reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
-
 reg.exe unload HKLM\TempUser | Out-Host
 
 #Cleaning Folder
+Dismount-DiskImage -ImagePath $OutFileLang -Verbose
+Dismount-DiskImage -ImagePath $OutFileFOD -Verbose
+
 Remove-Item	  $Path -Force -Recurse -ErrorAction SilentlyContinue
