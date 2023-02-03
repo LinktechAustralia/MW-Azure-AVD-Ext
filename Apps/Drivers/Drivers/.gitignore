@@ -1,0 +1,13 @@
+*.dll
+*.cab
+*.inf
+*.ini
+*.cat
+*.cfg
+*.gdl
+*.gpd
+*.hlp
+*.hta
+*.rtf
+*.xml
+*.zip
