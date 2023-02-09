@@ -9,6 +9,7 @@ If the installed version does not exist or the
 
 $AppName = 'FSLogix'
 $EverGreenAppName = 'MicrosoftFSLogixApps'
+$FSLOGIXURI = 'https://aka.ms/fslogix_download'
 
 Start-Transcript $(Join-Path $env:TEMP Install-$($AppName).log)
 Write-Host "AIB Customization: $($Appname)"
