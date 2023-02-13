@@ -126,7 +126,7 @@ $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.
 $OutFileLang = Join-Path $Path Language.iso
 Write-Host "$(LogDateTime)Commence Download of $($OutFileLang)"
 
-Start-BitsTransfer -Source $URI -Destination $OutFileLang -Verbose
+Start-BitsTransfer -Source $URI -Destination $OutFileLang -Authentication Basic - -Verbose
 
 
 ##Set Language Pack Content Stores##
@@ -137,7 +137,7 @@ $Drive = (Mount-DiskImage -ImagePath "$($OutFileLang)" -PassThru -StorageType IS
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_amd64fre_FOD-PACKAGES_OEM_PT1_amd64fre_MULTI.iso"
 $OutFileFOD = Join-Path $Path FODDISK1.iso
 Write-Host "$(LogDateTime)Commence Download of $($OutFileFOD)"
-Start-BitsTransfer -Source $URI -Destination $OutFileFOD
+Start-BitsTransfer -Source $URI -Destination $OutFileFOD -Authentication Basic -Verbose
 
 "$(LogDateTime)Mounting $($OutFileFOD)" | Write-Host
 $Drive = (Mount-DiskImage -ImagePath "$($OutFileFOD)" -PassThru -StorageType ISO | Get-Volume).driveletter
