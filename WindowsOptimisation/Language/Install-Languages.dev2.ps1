@@ -19,7 +19,7 @@ Script to install the necessary language packs
 
 #>
 
-$RequiredLanguages = @('en-AU','pt-BR')
+$RequiredLanguages = @('en-AU')
 $DefaultLanguage = 'en-AU'
 $WinhomeLocation = 12
 $CompanyShortCode = 'LTA'
@@ -46,24 +46,29 @@ if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 }
 New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType DWORD -Value 1 -Force
 
-<# 
+# 
 foreach ($ReqLang in $RequiredLanguages)
 	{
 		"Language Installer: Checking for $($ReqLang)"
 		if (!(Get-Language -Language $ReqLang)) {
 			"Language Installer: $($ReqLang) is not installed. Installing.."
-			Install-Language -Language $ReqLang -CopyToSettings -Verbose
 
+			if ($ReqLang -eq $DefaultLanguage) {
+				Install-Language -Language $ReqLang -CopyToSettings -Verbose
+			} Else {
+				Install-Language -Language $ReqLang -Verbose
+			}
+			
 		} else {
 			"Language Installer: $($ReqLang) is installed"
 		}
 	}
 
-Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
+Set-SystemPreferredUILanguage $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
 
 
-#Cleaning Up
+<#Cleaning Up
 Write-Host "Language Installer: Cleaning up Languages"
 $InstalledLanguages = get-language 
 foreach ($InstalledLang in $InstalledLanguages){
@@ -120,7 +125,7 @@ $FilesLists = @{
 
 }
 
-#Download & Mount the Language ISOs
+<#Download & Mount the Language ISOs
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
 $OutFileLang = Join-Path $Path Language.iso
@@ -200,10 +205,6 @@ $LanguageList = Get-WinUserLanguageList
 $LanguageList.Add("en-au")
 Set-WinUserLanguageList $LanguageList -force
 
-#Clear US Language
-$LanguageList = Get-WinUserLanguageList
-$LanguageList.Remove("en-US")
-Set-WinUserLanguageList $LanguageList -force
 
 
 <#  
@@ -222,6 +223,7 @@ Set-WinSystemLocale -SystemLocale $DefaultLanguage
 Set-WinHomeLocation -GeoId $WinhomeLocation -Verbose
 Set-WinUserLanguageList en-AU -Force
 
+<#
 $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
@@ -262,6 +264,6 @@ reg.exe unload HKLM\TempUser | Out-Host
 #Cleaning Folder
 Dismount-DiskImage -ImagePath $OutFileLang -Verbose
 Dismount-DiskImage -ImagePath $OutFileFOD -Verbose
-
+#>
 Set-Location $env:windir
 Remove-Item	  $Path -Force -Recurse -ErrorAction SilentlyContinue
