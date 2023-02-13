@@ -19,7 +19,7 @@ Script to install the necessary language packs
 
 #>
 
-$RequiredLanguages = @('en-AU')
+$RequiredLanguages = @('en-AU','pt-BR')
 $DefaultLanguage = 'en-AU'
 $WinhomeLocation = 12
 $CompanyShortCode = 'LTA'
@@ -46,29 +46,24 @@ if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 }
 New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType DWORD -Value 1 -Force
 
-# 
+<# 
 foreach ($ReqLang in $RequiredLanguages)
 	{
 		"Language Installer: Checking for $($ReqLang)"
 		if (!(Get-Language -Language $ReqLang)) {
 			"Language Installer: $($ReqLang) is not installed. Installing.."
+			Install-Language -Language $ReqLang -CopyToSettings -Verbose
 
-			if ($ReqLang -eq $DefaultLanguage) {
-				Install-Language -Language $ReqLang -CopyToSettings -Verbose
-			} Else {
-				Install-Language -Language $ReqLang -Verbose
-			}
-			
 		} else {
 			"Language Installer: $($ReqLang) is installed"
 		}
 	}
 
-Set-SystemPreferredUILanguage $DefaultLanguage -PassThru -Verbose
+Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
 Set-WinSystemLocale -SystemLocale $DefaultLanguage
 
 
-<#Cleaning Up
+#Cleaning Up
 Write-Host "Language Installer: Cleaning up Languages"
 $InstalledLanguages = get-language 
 foreach ($InstalledLang in $InstalledLanguages){
@@ -125,7 +120,7 @@ $FilesLists = @{
 
 }
 
-<#Download & Mount the Language ISOs
+#Download & Mount the Language ISOs
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
 $OutFileLang = Join-Path $Path Language.iso
@@ -201,10 +196,14 @@ foreach ($RequiredLanguage in $RequiredLanguages) {
 #>
 
 
-#$LanguageList = Get-WinUserLanguageList
-#$LanguageList.Add("en-au")
-#Set-WinUserLanguageList $LanguageList -force
+$LanguageList = Get-WinUserLanguageList
+$LanguageList.Add("en-au")
+Set-WinUserLanguageList $LanguageList -force
 
+#Clear US Language
+$LanguageList = Get-WinUserLanguageList
+$LanguageList.Remove("en-US")
+Set-WinUserLanguageList $LanguageList -force
 
 
 <#  
@@ -223,7 +222,6 @@ Set-WinSystemLocale -SystemLocale $DefaultLanguage
 Set-WinHomeLocation -GeoId $WinhomeLocation -Verbose
 Set-WinUserLanguageList en-AU -Force
 
-<#
 $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
@@ -240,7 +238,7 @@ reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($RequiredLanguages -join ' ')" /f | Out-Host
 
 $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
+#reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
 reg.exe unload HKLM\TempUser | Out-Host
 
      
@@ -256,15 +254,14 @@ reg.exe unload HKLM\TempUser | Out-Host
 	$STPrin = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Users" -RunLevel Limited 
 	# Register the scheduled task
 	Register-ScheduledTask -Action $action -Trigger $triggers -TaskName "$STTaskname" -Description "Sets the default language for the user" -Principal $STPrin -Force
-	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
-	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
+#	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
+#	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
 
 	Write-Host "Scheduled task created."
 
 #Cleaning Folder
 Dismount-DiskImage -ImagePath $OutFileLang -Verbose
 Dismount-DiskImage -ImagePath $OutFileFOD -Verbose
-#>
+
 Set-Location $env:windir
 Remove-Item	  $Path -Force -Recurse -ErrorAction SilentlyContinue
-
