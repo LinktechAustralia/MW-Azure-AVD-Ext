@@ -201,9 +201,9 @@ foreach ($RequiredLanguage in $RequiredLanguages) {
 #>
 
 
-$LanguageList = Get-WinUserLanguageList
-$LanguageList.Add("en-au")
-Set-WinUserLanguageList $LanguageList -force
+#$LanguageList = Get-WinUserLanguageList
+#$LanguageList.Add("en-au")
+#Set-WinUserLanguageList $LanguageList -force
 
 
 
