@@ -12,9 +12,10 @@ if (!(Test-Path $Path)) {
 
 # set regKey
 write-host 'AIB Customization: Set required regKey'
-New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" 
+if (!(Test-Path HKLM:\SOFTWARE\Microsoft -ErrorAction SilentlyContinue)){
+New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" }
 New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -Type "Dword" -Value "1"
-write-host 'AIB Customization: Finished Set required regKey'
+write-host "AIB Customization $($AppName): Finished Set required regKey"
 
 
 # install vc
@@ -25,7 +26,7 @@ $visCplusURLexe = 'vc_redist.x64.exe'
 $outputPath = $Path + '\' + $visCplusURLexe
 Invoke-WebRequest -Uri $visCplusURL -OutFile $outputPath
 write-host 'AIB Customization: Starting Install the latest Microsoft Visual C++ Redistributable'
-Start-Process -FilePath $outputPath -Args "/install /quiet /norestart /log vcdist.log" -Wait
+Start-Process -FilePath $outputPath -Args "/install /quiet /norestart /log C:\windows\logs\vcdist.log" -Wait
 write-host 'AIB Customization: Finished Install the latest Microsoft Visual C++ Redistributable'
 
 
