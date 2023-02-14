@@ -81,10 +81,13 @@ $FilesLists = @{
 		Name            = "en-AU"
 		Files           = @(
 			"Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab"
 			"Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-Speech-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-TextToSpeech-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
@@ -227,7 +230,7 @@ New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
 
 $ReqLangtoString = "@(" + $(($RequiredLanguages | % {"`"$_`""} ) -join ',') + ")"
-$SCRIPT = "Start-transcript `$env:temp\Set-Langs-AVD.log ; Write-host `"Configuring the AVD language settings for `$env:username`" ; Set-Winuserlanguagelist $($ReqLangtoString) -force -verbose ; Set-WinHomeLocation -GeoId $($WinhomeLocation) ; Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ; Set-Culture $($DefaultLanguage) "
+$SCRIPT = "Start-transcript `$env:temp\Set-Langs-AVD.log  ; Write-host `"Configuring the AVD language settings for `$env:username`" ; `$RegPath = `"HKCU:\SOFTWARE\KEG\LangSettings`" ; if (Test-Path `$RegPath -ErrorAction SilentlyContinue) {`"Script has run`"} Else {Set-Winuserlanguagelist $($ReqLangtoString) -force -verbose ; Set-WinHomeLocation -GeoId $($WinhomeLocation) ; Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ; Set-Culture $($DefaultLanguage) ; New-Item `$RegPath -Force ; Set-ItemProperty -Path `$RegPath -Name LastRun -Value `$(Get-date -fo s) ;}"
 $OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
 
 "$(LogDateTime)Generating Script to $($OutScriptFile) " | Write-Host
@@ -241,7 +244,7 @@ $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
 reg.exe unload HKLM\TempUser | Out-Host
 
-     
+
 	
 	#Create the scheduled task action
 	$STTaskname = "Set-Language"

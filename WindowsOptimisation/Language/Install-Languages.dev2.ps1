@@ -19,7 +19,7 @@ Script to install the necessary language packs
 
 #>
 
-$RequiredLanguages = @('en-AU','pt-BR')
+$RequiredLanguages = @('en-AU', 'pt-BR')
 $DefaultLanguage = 'en-AU'
 $WinhomeLocation = 12
 $CompanyShortCode = 'LTA'
@@ -76,15 +76,18 @@ foreach ($InstalledLang in $InstalledLanguages){
 
  #>
 
-$FilesLists = @{
+ $FilesLists = @{
 	'en-AU' = @{
 		Name            = "en-AU"
 		Files           = @(
 			"Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-Basic-en-au-Package~31bf3856ad364e35~amd64~~.cab"
 			"Microsoft-Windows-LanguageFeatures-Handwriting-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-OCR-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-Speech-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-Speech-en-au-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-LanguageFeatures-TextToSpeech-en-gb-Package~31bf3856ad364e35~amd64~~.cab",
+			"Microsoft-Windows-LanguageFeatures-TextToSpeech-en-au-Package~31bf3856ad364e35~amd64~~.cab",
 			"Microsoft-Windows-NetFx3-OnDemand-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-InternetExplorer-Optional-Package~31bf3856ad364e35~amd64~en-gb~.cab",
 			"Microsoft-Windows-MSPaint-FoD-Package~31bf3856ad364e35~amd64~en-gb~.cab",
@@ -226,8 +229,8 @@ $RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\MUI\Settings"
 New-item -Path $RegPath -Force
 New-ItemProperty -Path $RegPath -Name PreferredUILanguages -PropertyType string -Value $DefaultLanguage
 
-$ReqLangtoString = "@(" + $(($RequiredLanguages | % {"`"$_`""} ) -join ',') + ")"
-$SCRIPT = "Start-transcript `$env:temp\Set-Langs-AVD.log ; Write-host `"Configuring the AVD language settings for `$env:username`" ; Set-Winuserlanguagelist $($ReqLangtoString) -force -verbose ; Set-WinHomeLocation -GeoId $($WinhomeLocation) ; Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ; Set-Culture $($DefaultLanguage) "
+$ReqLangtoString = "@(" + $(($RequiredLanguages | % { "`"$_`"" } ) -join ',') + ")"
+$SCRIPT = "Start-transcript `$env:temp\Set-Langs-AVD.log  ; Write-host `"Configuring the AVD language settings for `$env:username`" ; `$RegPath = `"HKCU:\SOFTWARE\KEG\LangSettings`" ; if (Test-Path `$RegPath -ErrorAction SilentlyContinue) {`"Script has run`"} Else {Set-Winuserlanguagelist $($ReqLangtoString) -force -verbose ; Set-WinHomeLocation -GeoId $($WinhomeLocation) ; Set-WinSystemLocale -SystemLocale $($DefaultLanguage) ; Set-Culture $($DefaultLanguage) ; New-Item `$RegPath -Force ; Set-ItemProperty -Path `$RegPath -Name LastRun -Value `$(Get-date -fo s) ;}"
 $OutScriptFile = Join-Path $env:ProgramFiles Set-Langs.ps1
 
 "$(LogDateTime)Generating Script to $($OutScriptFile) " | Write-Host
@@ -243,22 +246,22 @@ reg.exe unload HKLM\TempUser | Out-Host
 
      
 	
-	#Create the scheduled task action
-	$STTaskname = "Set-Language"
-	$action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument " -ExecutionPolicy bypass -WindowStyle Hidden -File `"$OutScriptFile`""
+#Create the scheduled task action
+$STTaskname = "Set-Language"
+$action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument " -ExecutionPolicy bypass -WindowStyle Hidden -File `"$OutScriptFile`""
 
-	# Create the scheduled task trigger
-	$timespan = New-Timespan -minutes 5
-	$triggers = @()
-	$triggers += New-ScheduledTaskTrigger -Once -At (Get-Date).AddYears(-2)
-	$triggers += New-ScheduledTaskTrigger -AtLogOn
-	$STPrin = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Users" -RunLevel Limited 
-	# Register the scheduled task
-	Register-ScheduledTask -Action $action -Trigger $triggers -TaskName "$STTaskname" -Description "Sets the default language for the user" -Principal $STPrin -Force
-	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
-	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
+# Create the scheduled task trigger
+$timespan = New-Timespan -minutes 5
+$triggers = @()
+$triggers += New-ScheduledTaskTrigger -Once -At (Get-Date).AddYears(-2)
+$triggers += New-ScheduledTaskTrigger -AtLogOn
+$STPrin = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Users" -RunLevel Limited 
+# Register the scheduled task
+Register-ScheduledTask -Action $action -Trigger $triggers -TaskName "$STTaskname" -Description "Sets the default language for the user" -Principal $STPrin -Force
+$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
+Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
 
-	Write-Host "$(LogDateTime)Scheduled task created."
+Write-Host "$(LogDateTime)Scheduled task created."
 
 #Cleaning Folder
 Dismount-DiskImage -ImagePath $OutFileLang -Verbose
