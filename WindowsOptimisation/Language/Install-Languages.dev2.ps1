@@ -32,7 +32,7 @@ function LogDateTime {
 	$(Get-Date -Format s) + "`t"
 	
 }
-"Language Installer: Importing Module"
+"$(LogDateTime)AIB Customisation: Language Installer: Importing Module"
 Import-Module Languagepackmanagement -Verbose -ErrorAction SilentlyContinue
 $Path = Join-Path "C:\Apps" "LanguagePacks"
 mkdir $($Path)
@@ -126,7 +126,7 @@ $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.
 $OutFileLang = Join-Path $Path Language.iso
 Write-Host "$(LogDateTime)Commence Download of $($OutFileLang)"
 
-Start-BitsTransfer -Source $URI -Destination $OutFileLang -Authentication Basic - -Verbose
+Start-BitsTransfer -Source $URI -Destination $OutFileLang -Verbose
 
 
 ##Set Language Pack Content Stores##
@@ -137,7 +137,7 @@ $Drive = (Mount-DiskImage -ImagePath "$($OutFileLang)" -PassThru -StorageType IS
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_amd64fre_FOD-PACKAGES_OEM_PT1_amd64fre_MULTI.iso"
 $OutFileFOD = Join-Path $Path FODDISK1.iso
 Write-Host "$(LogDateTime)Commence Download of $($OutFileFOD)"
-Start-BitsTransfer -Source $URI -Destination $OutFileFOD -Authentication Basic -Verbose
+Start-BitsTransfer -Source $URI -Destination $OutFileFOD
 
 "$(LogDateTime)Mounting $($OutFileFOD)" | Write-Host
 $Drive = (Mount-DiskImage -ImagePath "$($OutFileFOD)" -PassThru -StorageType ISO | Get-Volume).driveletter
@@ -238,7 +238,7 @@ reg.exe load HKLM\TempUser "C:\Users\Default\NTUSER.DAT" | Out-Host
 reg.exe add "HKLM\TempUser\Control Panel\International\User Profile" /v Languages /t REG_MULTI_SZ /d "$($RequiredLanguages -join ' ')" /f | Out-Host
 
 $RegPath = "HKLM\TempUser\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-#reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
+reg.exe add "$($RegPath)" /v SetLang01 /t reg_SZ /d 'powershell.exe -ex bypass -WindowStyle hidden -File \"C:\Program Files\Set-Langs.ps1\"' /f
 reg.exe unload HKLM\TempUser | Out-Host
 
      
@@ -251,13 +251,14 @@ reg.exe unload HKLM\TempUser | Out-Host
 	$timespan = New-Timespan -minutes 5
 	$triggers = @()
 	$triggers += New-ScheduledTaskTrigger -Once -At (Get-Date).AddYears(-2)
+	$triggers += New-ScheduledTaskTrigger -AtLogOn
 	$STPrin = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Users" -RunLevel Limited 
 	# Register the scheduled task
 	Register-ScheduledTask -Action $action -Trigger $triggers -TaskName "$STTaskname" -Description "Sets the default language for the user" -Principal $STPrin -Force
-#	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
-#	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
+	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
+	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
 
-	Write-Host "Scheduled task created."
+	Write-Host "$(LogDateTime)Scheduled task created."
 
 #Cleaning Folder
 Dismount-DiskImage -ImagePath $OutFileLang -Verbose

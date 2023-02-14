@@ -32,7 +32,7 @@ function LogDateTime {
 	$(Get-Date -Format s) + "`t"
 	
 }
-"Language Installer: Importing Module"
+"$(LogDateTime)AIB Customisation: Language Installer: Importing Module"
 Import-Module Languagepackmanagement -Verbose -ErrorAction SilentlyContinue
 $Path = Join-Path "C:\Apps" "LanguagePacks"
 mkdir $($Path)
@@ -251,13 +251,14 @@ reg.exe unload HKLM\TempUser | Out-Host
 	$timespan = New-Timespan -minutes 5
 	$triggers = @()
 	$triggers += New-ScheduledTaskTrigger -Once -At (Get-Date).AddYears(-2)
+	$triggers += New-ScheduledTaskTrigger -AtLogOn
 	$STPrin = New-ScheduledTaskPrincipal -GroupId "BUILTIN\Users" -RunLevel Limited 
 	# Register the scheduled task
 	Register-ScheduledTask -Action $action -Trigger $triggers -TaskName "$STTaskname" -Description "Sets the default language for the user" -Principal $STPrin -Force
 	$STSettings = New-ScheduledTaskSettingsSet -Compatibility Win8 -StartWhenAvailable
 	Set-ScheduledTask -TaskName $STTaskname -Settings $STSettings
 
-	Write-Host "Scheduled task created."
+	Write-Host "$(LogDateTime)Scheduled task created."
 
 #Cleaning Folder
 Dismount-DiskImage -ImagePath $OutFileLang -Verbose
