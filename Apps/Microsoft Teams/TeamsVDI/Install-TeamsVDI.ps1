@@ -1,3 +1,22 @@
+<#
+
+.SYNOPSIS
+Installs the Teams Machine Wide installer along with the SVD requirements
+
+.LINK
+https://learn.microsoft.com/en-us/microsoftteams/teams-for-vdi
+
+.NOTES
+	Created by	: 	Linktech Australia
+	Author		:	Leroy DSouza
+	Version		:	2.0
+	Modified	:	20230215
+
+.DESCRIPTION
+	2023-02-15: Added the removal if existing Teams install exists. Needed to upgrade Teams if using an existing image or to ensure that the image has the latest Teams installed
+
+#>
+
 $AppName = 'Teams'
 #Invoke-WebRequest -Uri $url -OutFile 
 Start-Transcript $(Join-Path $env:TEMP Install-$($AppName).log)
@@ -14,7 +33,7 @@ $TeamsInstalled =  Get-ChildItem -Path $RegPath | Get-ItemProperty | Where-Objec
 
 	if ($TeamsInstalled) {
 		# Remove Teams Machine-Wide Installer
-		Write-Host "Removing existing Teams Machine-wide Installer" -ForegroundColor Yellow
+		Write-Host "AIB Customization $($AppName): Removing existing Teams Machine-wide Installer" -ForegroundColor Yellow
 		$TeamsMachineWide = Get-WmiObject -Class Win32_Product | Where-Object{$_.Name -eq "$($TeamsInstalled.DisplayName)"}
 		$TeamsMachineWide.Uninstall()
 	}
@@ -34,11 +53,11 @@ write-host 'AIB Customization: Install the latest Microsoft Visual C++ Redistrib
 set-Location $Path
 $visCplusURL = 'https://aka.ms/vs/16/release/vc_redist.x64.exe'
 $visCplusURLexe = 'vc_redist.x64.exe'
-$outputPath = $Path + '\' + $visCplusURLexe
+$outputPath = Join-Path $Path $visCplusURLexe
 Invoke-WebRequest -Uri $visCplusURL -OutFile $outputPath
 write-host 'AIB Customization: Starting Install the latest Microsoft Visual C++ Redistributable'
-Start-Process -FilePath $outputPath -Args "/install /quiet /norestart /log C:\windows\logs\vcdist.log" -Wait
-write-host 'AIB Customization: Finished Install the latest Microsoft Visual C++ Redistributable'
+Start-Process -FilePath $outputPath -Args "/install /quiet /norestart /log C:\windows\logs\Install-Teams-vcdist.log" -Wait
+write-host "AIB Customization $($AppName): Finished Install the latest Microsoft Visual C++ Redistributable"
 
 
 # install webSoc svc
@@ -47,8 +66,8 @@ $webSocketsURL = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4A
 $webSocketsInstallerMsi = 'webSocketSvc.msi'
 $outputPath = $Path + '\' + $webSocketsInstallerMsi
 Invoke-WebRequest -Uri $webSocketsURL -OutFile $outputPath
-Start-Process -FilePath msiexec.exe -Args "/I $outputPath /quiet /norestart /log C:\windows\logs\webSocket.log" -Wait
-write-host 'AIB Customization: Finished Install the Teams WebSocket Service'
+Start-Process -FilePath msiexec.exe -Args "/I $outputPath /quiet /norestart /log C:\windows\logs\Install-Teams-webSocket.log" -Wait
+write-host "AIB Customization $($AppName): Finished Install the Teams WebSocket Service"
 
 # install Teams
 write-host 'AIB Customization: Install MS Teams'
@@ -56,8 +75,8 @@ $teamsURL = 'https://teams.microsoft.com/downloads/desktopurl?env=production&pla
 $teamsMsi = 'teams.msi'
 $outputPath = $Path + '\' + $teamsMsi
 Invoke-WebRequest -Uri $teamsURL -OutFile $outputPath
-Start-Process -FilePath msiexec.exe -Args "/I $outputPath /quiet /norestart /log C:\windows\logs\teams.log OPTIONS=`"noAutoStart=true`" ALLUSER=1 ALLUSERS=1 " -Wait
-write-host 'AIB Customization: Finished Install MS Teams' 
+Start-Process -FilePath msiexec.exe -Args "/I $outputPath /quiet /norestart /log C:\windows\logs\Install-Teams_MSI.log OPTIONS=`"noAutoStart=true`" ALLUSER=1 ALLUSERS=1 " -Wait
+write-host "AIB Customization $($AppName): Finished Installing Teams Machine-Wide" 
 
 Set-Location C:\Windows\System32
 
