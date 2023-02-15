@@ -8,14 +8,25 @@ if (!(Test-Path $Path)) {
 	mkdir $Path
 }
 
+#Check if already installed and un-install
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+$TeamsInstalled =  Get-ChildItem -Path $RegPath | Get-ItemProperty | Where-Object {$_.DisplayName -match "Teams Machine" }
+
+	if ($TeamsInstalled) {
+		# Remove Teams Machine-Wide Installer
+		Write-Host "Removing existing Teams Machine-wide Installer" -ForegroundColor Yellow
+		$TeamsMachineWide = Get-WmiObject -Class Win32_Product | Where-Object{$_.Name -eq "$($TeamsInstalled.DisplayName)"}
+		$TeamsMachineWide.Uninstall()
+	}
 
 
-# set regKey
-write-host 'AIB Customization: Set required regKey'
-if (!(Test-Path HKLM:\SOFTWARE\Microsoft -ErrorAction SilentlyContinue)){
-New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" }
-New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -Type "Dword" -Value "1"
-write-host "AIB Customization $($AppName): Finished Set required regKey"
+	# set regKey
+	write-host 'AIB Customization: Set required regKey'
+	if (!(Test-Path HKLM:\SOFTWARE\Microsoft -ErrorAction SilentlyContinue)){
+		New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" 
+	}
+	New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -Type "Dword" -Value "1"
+	write-host "AIB Customization $($AppName): Finished Set required regKey"
 
 
 # install vc
@@ -51,3 +62,4 @@ write-host 'AIB Customization: Finished Install MS Teams'
 Set-Location C:\Windows\System32
 
 Remove-item -Path $Path -Force -Recurse
+Remove-item -Path C:\temp -Force -Recurse
