@@ -70,6 +70,12 @@ $masterPrefJson.distribution | Add-Member -MemberType NoteProperty -Name "do_not
 $masterPrefJson | Out-File $masterPref -force -Encoding ascii
 $masterPrefJson | Out-File "C:\Program Files\Google\Chrome\Application\master_preferences" -force -Encoding ascii
 
+#Disable Auto Updates
+$RegPath = "HKLM:\Software\Policies\Google\Update"
+If (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
+	New-Item -Path $RegPath -Force
+}
+
 
 
 Write-Host 'AIB Customization Exit code: ' $LASTEXITCODE

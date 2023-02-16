@@ -50,8 +50,11 @@ if (!(Test-Path $Path -ErrorAction SilentlyContinue)) #Create the folder if it d
 #region Customisation
 	New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown' -Value 1 -Name bIsSCReducedModeEnforcedEx -PropertyType DWORD -Force
 	New-Item -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Force -ErrorAction SilentlyContinue
-	New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Value 1 -Name bUpdater -PropertyType DWORD -Force
+	New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Value 0 -Name bUpdater -PropertyType DWORD -Force
 	New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cServices' -Value 0 -Name bToggleAdobeSign -PropertyType DWORD -Force
 	New-Item -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cIPM' -Force -ErrorAction SilentlyContinue
 	New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown\cIPM' -Value 0 -Name bDontShowMsgWhenViewingDoc -PropertyType DWORD -Force
+	New-Item -Path 'HKLM:\SOFTWARE\WOW6432Node\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown' -Force -ErrorAction SilentlyContinue
+	New-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Policies\Adobe\Adobe Acrobat\DC\FeatureLockDown'-Value 1 -Name bUpdater -PropertyType DWORD -Force
+	New-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Adobe\Adobe ARM\Legacy\Acrobat\{AC76BA86-1033-FFFF-7760-BC15014EA700}' -Name Mode -Value 0
 	#endregion Customisation 

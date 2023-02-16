@@ -40,7 +40,7 @@ $TeamsInstalled =  Get-ChildItem -Path $RegPath | Get-ItemProperty | Where-Objec
 
 
 	# set regKey
-	write-host 'AIB Customization: Set required regKey'
+	write-host "AIB Customization $($AppName): Set required regKey"
 	if (!(Test-Path HKLM:\SOFTWARE\Microsoft -ErrorAction SilentlyContinue)){
 		New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" 
 	}
@@ -49,7 +49,7 @@ $TeamsInstalled =  Get-ChildItem -Path $RegPath | Get-ItemProperty | Where-Objec
 
 
 # install vc
-write-host 'AIB Customization: Install the latest Microsoft Visual C++ Redistributable'
+write-host "AIB Customization $($AppName): Install the latest Microsoft Visual C++ Redistributable"
 set-Location $Path
 $visCplusURL = 'https://aka.ms/vs/16/release/vc_redist.x64.exe'
 $visCplusURLexe = 'vc_redist.x64.exe'
@@ -61,7 +61,7 @@ write-host "AIB Customization $($AppName): Finished Install the latest Microsoft
 
 
 # install webSoc svc
-write-host 'AIB Customization: Install the Teams WebSocket Service'
+write-host "AIB Customization $($AppName): Install the Teams WebSocket Service"
 $webSocketsURL = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4AQBt'
 $webSocketsInstallerMsi = 'webSocketSvc.msi'
 $outputPath = $Path + '\' + $webSocketsInstallerMsi
@@ -70,7 +70,7 @@ Start-Process -FilePath msiexec.exe -Args "/I $outputPath /quiet /norestart /log
 write-host "AIB Customization $($AppName): Finished Install the Teams WebSocket Service"
 
 # install Teams
-write-host 'AIB Customization: Install MS Teams'
+write-host "AIB Customization $($AppName): Install MS Teams"
 $teamsURL = 'https://teams.microsoft.com/downloads/desktopurl?env=production&plat=windows&arch=x64&managedInstaller=true&download=true'
 $teamsMsi = 'teams.msi'
 $outputPath = $Path + '\' + $teamsMsi
