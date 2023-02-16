@@ -9,7 +9,7 @@ https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locat
 
 #>
 
-$RequiredLanguages = @('en-AU','pt-BR')
+$RequiredLanguages = @('en-AU','pt-BR','en-GB')
 $DefaultLanguage = 'en-AU'
 $WinhomeLocation = 12
 
@@ -35,22 +35,22 @@ if (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 }
 New-ItemProperty -Path $RegPath -Name BlockCleanupOfUnusedPreinstalledLangPacks -PropertyType DWORD -Value 1 -Force
 
-<# 
+
 foreach ($ReqLang in $RequiredLanguages)
 	{
 		"Language Installer: Checking for $($ReqLang)"
 		if (!(Get-Language -Language $ReqLang)) {
 			"Language Installer: $($ReqLang) is not installed. Installing.."
-			Install-Language -Language $ReqLang -CopyToSettings -Verbose
 
+				if ($ReqLand -eq $DefaultLanguage) {
+				Install-Language -Language $ReqLang -CopyToSettings -Verbose
+			} Else {
+				Install-Language -Language $ReqLang -Verbose
+			}
 		} else {
 			"Language Installer: $($ReqLang) is installed"
 		}
 	}
-
-Set-SystemPreferredUILanguage -Language $DefaultLanguage -PassThru -Verbose
-Set-WinSystemLocale -SystemLocale $DefaultLanguage
-
 
 #Cleaning Up
 Write-Host "Language Installer: Cleaning up Languages"
@@ -108,7 +108,7 @@ $FilesLists = @{
 	}
 
 }
-
+<# 
 #Download & Mount the Language ISOs
 
 $URI = "https://software-download.microsoft.com/download/pr/19041.1.191206-1406.vb_release_CLIENTLANGPACKDVD_OEM_MULTI.iso"
@@ -183,7 +183,7 @@ foreach ($RequiredLanguage in $RequiredLanguages) {
 
 }
 #>
-
+ #>
 
 $LanguageList = Get-WinUserLanguageList
 $LanguageList.Add("en-au")
