@@ -75,6 +75,8 @@ $RegPath = "HKLM:\Software\Policies\Google\Update"
 If (!(Test-Path $RegPath -ErrorAction SilentlyContinue)) {
 	New-Item -Path $RegPath -Force
 }
+New-ItemProperty -Path $RegPath -Name 'Install{32987697-A14E-4B89-84D6-630D5431E831}' -Value 0 -PropertyType DWord -Force
+
 
 
 
