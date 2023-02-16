@@ -44,7 +44,8 @@ $TeamsInstalled =  Get-ChildItem -Path $RegPath | Get-ItemProperty | Where-Objec
 	if (!(Test-Path HKLM:\SOFTWARE\Microsoft -ErrorAction SilentlyContinue)){
 		New-Item -Path HKLM:\SOFTWARE\Microsoft -Name "Teams" 
 	}
-	New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -Type "Dword" -Value "1"
+	$regvalues = Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -ErrorAction SilentlyContinue
+	New-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Teams -Name "IsWVDEnvironment" -Type "Dword" -Value "1" -Force
 	write-host "AIB Customization $($AppName): Finished Set required regKey"
 
 
